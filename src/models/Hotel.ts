@@ -31,6 +31,7 @@ class Hotel extends Model {
   declare phone: string;
   declare createdAt: Date;
   declare updatedAt: Date;
+  i: any;
 
   async login(password: string) {
     if (!this.dataValues.password || !password) return false;
@@ -133,6 +134,7 @@ Hotel.init(
   }
 );
 
+// hook quando salvar ele vai criptografa a senha usando o bcryptJs
 Hotel.addHook('beforeSave', (client: Hotel) => {
   if (!client.changed('password')) return;
   const password = bcript.hashSync(client.password, 10);

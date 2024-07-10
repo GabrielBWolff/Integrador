@@ -97,7 +97,12 @@ const changeReserveStatus: RequestHandler = async (req, res) => {
     if (room.hotelId !== hotelId)
       throw new Error('Este quarto não pertence a este hotel.');
 
+    if(status === "checkedout" || status === "cancelled") await room.update({ disponibility: true});
+
     await reserve.update({ status });
+
+    await reserve.save();
+    await room.save();
     return response(res, { status: 200, data: reserve });
   } catch (error) {
     return errorResponse(res, error);

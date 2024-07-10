@@ -4,8 +4,6 @@ import { Options, Sequelize } from 'sequelize';
 dotenv.config();
 
 const config: Options = {
-  // ATIVAR LOG
-
   dialect: 'postgres',
   logging: true,
   host: process.env.DATABASE_HOST,

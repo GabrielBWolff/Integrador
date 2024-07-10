@@ -19,12 +19,21 @@ const store: RequestHandler = async (req, res) => {
   }
 };
 
+type IdToHotel = {
+  [id: string]: Hotel
+}
+
 const index: RequestHandler = async (req, res) => {
   try {
     const rooms = await Room.findByHotelId(req.body.hotelId);
+    const hotelProcessed: IdToHotel = {};
 
-    const toReturn: (Room & { images: string[] })[] = [];
+    const toReturn: (Room & { images: string[] } & { address: string })[] = [];
     for (const room of rooms) {
+      if(!hotelProcessed[room.hotelId]) {
+        const hotel = await Hotel.findOne({where: {id: room.hotelId}});
+        hotelProcessed[room.hotelId] = hotel!;
+      }
       const roomImages = await Image.findAll({
         where: { referenceId: room.id },
       });
@@ -32,8 +41,10 @@ const index: RequestHandler = async (req, res) => {
       toReturn.push({
         ...room.dataValues,
         images: roomImages.map(i => i.imagePath),
+        address: hotelProcessed[room.hotelId].address
       } as Room & {
         images: string[];
+        address: string;
       });
     }
 
@@ -47,7 +58,6 @@ const indexByParams: RequestHandler = async (req, res) => {
   const { destination, checkin, checkout } = req.body;
 
   try {
-    console.log(req.body);
     if (!destination || !checkin || !checkout)
       return response(res, {
         status: 400,
@@ -60,30 +70,31 @@ const indexByParams: RequestHandler = async (req, res) => {
           addError('checkout', checkout ? checkout : 'Campo obrigatório'),
         ],
       });
-    const hotels = await Hotel.findAll({
-      where: {
-        address: {
-          [Op.like]: `%${destination}%`,
-        },
-      },
-      include: [
-        {
-          model: Room,
-          where: {
-            id: {
-              [Op.notIn]: [
-                Sequelize.literal(`
-                  SELECT "roomId"
-                  FROM "Reserves"
-                  WHERE "entryDate" < '${checkout}'
-                  AND "departureDate" > '${checkin}'
-                `),
-              ],
-            },
+      const hotels = await Hotel.findAll({
+        where: {
+          address: {
+            [Op.like]: `%${destination}%`,
           },
         },
-      ],
-    });
+        include: [
+          {
+            model: Room,
+            where: {
+              disponibility: true,
+              id: {
+                [Op.notIn]: [
+                  Sequelize.literal(`
+                    SELECT "roomId" 
+                    FROM "Reserves" 
+                    WHERE "entryDate" < '${checkout}' 
+                    AND "departureDate" > '${checkin}'
+                  `),
+                ],
+              },
+            },
+          },
+        ],
+      });
 
     const toReturn = [];
 
@@ -111,8 +122,13 @@ const indexByParams: RequestHandler = async (req, res) => {
 const indexAll: RequestHandler = async (req, res) => {
   try {
     const rooms = await Room.findAll();
+    const hotelProcessed: IdToHotel = {};
     const toReturn: (Room & { images: string[] })[] = [];
     for (const room of rooms) {
+      if(!hotelProcessed[room.hotelId]) {
+        const hotel = await Hotel.findOne({where: {id: room.hotelId}});
+        hotelProcessed[room.hotelId] = hotel!;
+      }
       const roomImages = await Image.findAll({
         where: { referenceId: room.id },
       });
@@ -120,8 +136,10 @@ const indexAll: RequestHandler = async (req, res) => {
       toReturn.push({
         ...room.dataValues,
         images: roomImages.map(i => i.imagePath),
+        address: hotelProcessed[room.hotelId].address
       } as Room & {
         images: string[];
+        address: string;
       });
     }
 

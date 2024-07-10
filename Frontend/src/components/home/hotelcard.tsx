@@ -12,7 +12,6 @@ const featureMapping: Record<
   keyof Features,
   { label: string; Icon: React.ElementType }
 > = {
-  beds: { label: 'Camas', Icon: BiEdit },
   shower: { label: 'Chuveiro', Icon: MdOutlineShower },
   bathroom: { label: 'Banheiro', Icon: MdOutlineBathroom },
   airConditioning: { label: 'Ar Condicionado', Icon: TbAirConditioning },
@@ -22,7 +21,6 @@ const featureMapping: Record<
   wifi: { label: 'Wi-Fi', Icon: CiDesktop },
   workDesk: { label: 'Mesa de Trabalho', Icon: CiDesktop },
   hairDryer: { label: 'Secador de Cabelo', Icon: PiHairDryerLight },
-  view: { label: 'Vista', Icon: BiEdit },
 };
 
 const HotelCard: React.FC<{ roomData: RoomResponse }> = ({ roomData }) => {
@@ -40,6 +38,7 @@ const HotelCard: React.FC<{ roomData: RoomResponse }> = ({ roomData }) => {
       />
       <h3 className="text-lg font-bold">{roomData.description}</h3>
       <p>Quarto número: {roomData.roomNumber}</p>
+      <p>Localização: {roomData.address}</p>
       <p>Capacidade máxima: {roomData.maxCapacity}</p>
       <p>
         Disponibilidade:{' '}

@@ -13,21 +13,9 @@ import { ReserveResponse } from '@/types/reserve.type';
 import {
   changeReserveStatus,
   getReservesHotel,
-  getReservesUser,
 } from '@/utils/Getter';
 import { useToast } from '../ui/use-toast';
 import { cn } from '@/lib/utils';
-
-type Reservation = {
-  id: number;
-  userId: number;
-  roomId: string;
-  entryDate: Date;
-  departureDate: Date;
-  status: ReservationStatus;
-  createdAt: Date;
-  updatedAt: Date;
-};
 
 type ReservationStatus = 'confirmed' | 'pending' | 'cancelled' | 'checkedout';
 

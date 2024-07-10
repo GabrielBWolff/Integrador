@@ -7,19 +7,19 @@ import { useEffect, useState } from 'react';
 import RegisterRoomModal from './includes/registerRoomForm';
 import { deleteRoom, getRooms } from '@/utils/Getter';
 import { useToast } from '../ui/use-toast';
+import EditRoomModal from './includes/editRoomForm';
 
 export default function Dashboard() {
   const { toast } = useToast();
   const { hotelToken } = useAuth();
-  const [rooms, setRooms] = useState<Room[]>();
+  const [rooms, setRooms] = useState<Room[]>([]);
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const filteredRooms = rooms?.filter(room =>
-    room.roomNumber.toString().includes(search)
-  );
+  const [filtredRooms, setFiltredRooms] = useState<Room[]>([]);
+  const [selectedRoom, setSelectedRoom] = useState<Room>();
 
   const fetchRooms = async () => {
-    if (!rooms) {
+    if (!rooms || rooms.length === 0) {
       const rooms = await getRooms(hotelToken!);
       if (rooms.length > 0 && typeof rooms[0] === 'string') {
         const roomsString = rooms as string[];
@@ -32,16 +32,19 @@ export default function Dashboard() {
         return;
       }
       setRooms(rooms as Room[]);
+
+      const filtred: Room[] = [];
+      for(const room of rooms as Room[]) {
+        if(room.roomNumber.toString().includes(search)) filtred.push(room)
+      }
+
+      setFiltredRooms(filtred);
     }
   };
 
   useEffect(() => {
     fetchRooms();
   }, []);
-
-  const roomsToShow = {
-    rooms: [...(filteredRooms || [])],
-  };
 
   const handleAddRoom = () => {
     setIsModalOpen(true);
@@ -51,7 +54,7 @@ export default function Dashboard() {
     <div className="overflow-hidden h-[95vh]">
       {isModalOpen && (
         <RegisterRoomModal
-          setRooms={setRooms}
+          setRooms={setFiltredRooms}
           rooms={rooms || []}
           isModalOpen={isModalOpen}
           setIsModalOpen={setIsModalOpen}
@@ -82,7 +85,7 @@ export default function Dashboard() {
               <CiCirclePlus className="w-8 h-8 text-blue-500" />
               <span className="ml-2">Adicionar Quarto</span>
             </div>
-            {roomsToShow.rooms.map((room, index) => {
+            {filtredRooms.map((room) => {
               return (
                 <div
                   key={room.id}
@@ -125,14 +128,14 @@ export default function Dashboard() {
                     })}
                   </div>
                   <div className="flex gap-2 mt-4">
-                    <Button className="bg-yellow-500 hover:bg-yellow-600 text-white w-full">
+                    <Button className="bg-yellow-500 hover:bg-yellow-600 text-white w-full" onClick={() => setSelectedRoom(room)}>
                       Editar
                     </Button>
                     <Button
                       className="bg-red-500 hover:bg-red-600 text-white w-full"
                       onClick={async () => {
-                        await deleteRoom(hotelToken!, room.id!.toString());
-                        setRooms(rooms?.filter(r => r.id !== room.id));
+                        await deleteRoom(hotelToken!, room.id);
+                        setFiltredRooms(filtredRooms?.filter(r => r.id !== room.id));
                       }}
                     >
                       Excluir
@@ -144,6 +147,11 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+      {
+        selectedRoom && (
+          <EditRoomModal initialData={selectedRoom} rooms={rooms} setRooms={setFiltredRooms} setIsModalOpen={setIsModalOpen} isModalOpen={selectedRoom ? true : false} setSelected={setSelectedRoom}/>
+        )
+      }
       {/* <Footer /> */}
     </div>
   );

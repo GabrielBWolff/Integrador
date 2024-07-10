@@ -85,6 +85,7 @@ export type RoomResponse = {
   hotelId: string;
   images: string[];
   pricePerDay: number;
+  address: string;
 };
 
 export type Room = z.infer<typeof RoomSchema>;

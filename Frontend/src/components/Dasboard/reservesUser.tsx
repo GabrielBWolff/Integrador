@@ -1,45 +1,20 @@
 import { useEffect, useState } from 'react';
 import Footer from '../footer/footer';
-import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from '../ui/dropdown-menu';
 import { useAuth } from '@/context/AuthContext';
 import { ReserveResponse } from '@/types/reserve.type';
 import { getReservesUser } from '@/utils/Getter';
 import { useToast } from '../ui/use-toast';
 
-type Reservation = {
-  id: number;
-  userId: number;
-  roomId: string;
-  entryDate: Date;
-  departureDate: Date;
-  status: ReservationStatus;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-type ReservationStatus = 'Confirmed' | 'Pending' | 'Cancelled' | 'CheckedOut';
-
-const statusOptions: ReservationStatus[] = [
-  'Confirmed',
-  'Pending',
-  'Cancelled',
-  'CheckedOut',
-];
+type ReservationStatus = 'confirmed' | 'pending' | 'cancelled' | 'checkedout';
 
 const statusMapping: {
   [key in ReservationStatus]: { label: string; color: string };
 } = {
-  Confirmed: { label: 'Confirmada', color: 'green' },
-  Pending: { label: 'Pendente', color: 'orange' },
-  Cancelled: { label: 'Cancelada', color: 'red' },
-  CheckedOut: { label: 'Concluída', color: 'blue' },
+  confirmed: { label: 'Confirmada', color: 'green' },
+  pending: { label: 'Pendente', color: 'orange' },
+  cancelled: { label: 'Cancelada', color: 'red' },
+  checkedout: { label: 'Concluída', color: 'blue' },
 };
 
 export default function ReservationsUser() {
@@ -53,13 +28,6 @@ export default function ReservationsUser() {
       reservation.roomNumber.toString().includes(search)
     ) || [];
 
-  const handleStatusChange = (id: number, newStatus: ReservationStatus) => {
-    console.log(`Reserva ${id} atualizada para ${newStatus}`);
-  };
-
-  const handleEndReservation = (id: number) => {
-    console.log(`Reserva ${id} encerrada`);
-  };
 
   useEffect(() => {
     const fetchReservations = async () => {
@@ -88,13 +56,11 @@ export default function ReservationsUser() {
               ...reserve,
               entryDate: new Date(reserve.entryDate),
               departureDate: new Date(reserve.departureDate),
-              status: (reserve.status.substring(0, 1).toUpperCase() +
-                reserve.status.substring(1).toLowerCase()) as ReservationStatus,
+              status: reserve.status,
             };
           }
         );
 
-        console.log(updatedReserves);
         setReservations(updatedReserves);
       }
     };

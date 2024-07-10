@@ -161,7 +161,6 @@ export async function loginHotelPost(data: {
   try {
     const response = await axios.post(`${API_URL}/hotel/login`, data);
     const responseData: ResponseProps<string> = response.data;
-    console.log(responseData);
     return responseData.data!;
   } catch (error: any) {
     return handleApiError(error);
@@ -285,7 +284,7 @@ export async function getAllRooms(): Promise<RoomResponse[] | string[]> {
   }
 }
 
-export async function deleteRoom(token: string, roomId: string) {
+export async function deleteRoom(token: string, roomId: any) {
   try {
     const response = await axios.delete(`${API_URL}/room`, {
       headers: {

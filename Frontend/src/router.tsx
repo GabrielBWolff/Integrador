@@ -9,8 +9,6 @@ import Dashboard from './components/Dasboard/rooms';
 import Reservations from './components/Dasboard/reserves';
 import SideBar from './components/sidebar/sidebar';
 import ViewRoom from './components/home/viewRoom';
-import { loginHotelPost } from './utils/Getter';
-import Login from './components/RegisterLoginHotel/Login';
 import LoginUser from './components/RegisterLoginUser/Login';
 import RegisterUser from './components/RegisterLoginUser/Register';
 import PrivateClient from './components/router/privateClient';
